@@ -7,13 +7,28 @@
 using namespace std;
 
 
+class Node {
+    public:
+    int label;
+    string name;
+    static int count;
+    Node(string name);
+};
+int Node::count = 0;
+Node::Node(string name)
+{
+    this->label = count;
+    count++;
+    this->name = name;
+}
+
 
 class Edge {
     public:
     int weight;
-    string source;
-    string destination;
-    Edge(string source, string destination,int weight);
+    Node* source;
+    Node* destination;
+    Edge(Node* source, Node* destination,int weight);
     friend bool operator<(Edge const& leftHandSide, Edge const& rightHandSide);
 	friend bool operator>(Edge const& leftHandSide, Edge const& rightHandSide);
 
@@ -24,31 +39,44 @@ bool operator<(Edge const& leftHandSide, Edge const& rightHandSide) {
 bool operator>(Edge const& leftHandSide, Edge const& rightHandSide) {
     return leftHandSide.weight > rightHandSide.weight;
 }
-Edge::Edge(string source, string destination, int weight) : source(source), destination(destination), weight(weight) {}
+Edge::Edge(Node* source, Node* destination, int weight)
+{
+    this->source = source;
+    this->destination = destination;
+    this->weight = weight;
+}
 
-bool checkGPandChurch(Edge *vertice)
+
+class Graph{
+    public:
+    vector <Edge> edges;
+    vector<Edge> MST;
+};
+
+
+bool checkGPandChurch(Edge *edge)
 {
     string GP = "GP";
     string church = "Ch";
 
-    size_t found1 = vertice->source.find(GP);
-    size_t found2 = vertice->destination.find(church);
+    size_t found1 = edge->source->name.find(GP);
+    size_t found2 = edge->destination->name.find(church);
 
-    if (found1 == std::string::npos || found2 == std::string::npos)
+    if (found1 == std::string::npos || found2 == std::string::npos)  // check whether location is GP and Church or not
     {
         return false;
     }
     return true;
 }
-bool checkGPandHipp(Edge* vertice)
+bool checkGPandHipp(Edge* edge)
 {
     string GP = "GP";
     string Hipp = "Hipp";
 
-    size_t found1 = vertice->source.find(GP);
-    size_t found2 = vertice->destination.find(Hipp);
+    size_t found1 = edge->source->name.find(GP);
+    size_t found2 = edge->destination->name.find(Hipp);
 
-    if (found1 == std::string::npos || found2 == std::string::npos)
+    if (found1 == std::string::npos || found2 == std::string::npos) // check whether location is GP and Hippodrome or not
     {
         return false;
     }
@@ -57,11 +85,15 @@ bool checkGPandHipp(Edge* vertice)
 int main()
 {
 
-    vector<Edge> vertices;
-    vector<Edge> GPandCh;
-    vector<Edge> GPandHipp;
+
     string fname = "city_plan_1.txt";
     ifstream city_plan(fname);
+
+    Graph g;
+
+    vector<Edge> GPandCh;
+    vector<Edge> GPandHipp;
+
     string source;
     string destination;
     string _weight;
@@ -72,38 +104,46 @@ int main()
         getline(city_plan, destination, ',');
         getline(city_plan, _weight, '\n');
         weight = stod(_weight);
-        Edge *vertice = new Edge(source, destination, weight);
-        // cout << source << " "<< destination<< " " << _weight <<  endl;
-        if (checkGPandChurch(vertice))
+
+        Node *_source = new Node(source);
+        Node *_destination = new Node(destination);
+
+
+        Edge *edge = new Edge(_source, _destination, weight);
+
+        if (checkGPandChurch(edge))
         {
-            GPandCh.push_back(*vertice);
+            GPandCh.push_back(*edge);
         }
-        else if (checkGPandHipp(vertice))
+        else if (checkGPandHipp(edge))
         {
-            GPandHipp.push_back(*vertice);
+            GPandHipp.push_back(*edge);
         }
         else
         {
-            vertices.push_back(*vertice);
+            g.edges.push_back(*edge);
         }
     }
-    sort(vertices.begin(), vertices.end());
+    sort(g.edges.begin(), g.edges.end());
 
-    for (int i = GPandHipp.size() - 1; i >= 0; i--)
+    // except GP-Ch and GP-Hipp pairs, all edges are sorted,
+    // since they have priorities, we will insert them front of the array
+
+    for (int i = GPandHipp.size() - 1; i >= 0; i--) 
     {
         sort(GPandHipp.begin(), GPandHipp.end());
-        vertices.insert(vertices.begin(), GPandHipp[i]);
+        g.edges.insert(g.edges.begin(), GPandHipp[i]);
     }
 
     for (int i = GPandCh.size() - 1; i >= 0; i--)
     {
         sort(GPandCh.begin(), GPandCh.end());
-        vertices.insert(vertices.begin(), GPandCh[i]);
+        g.edges.insert(g.edges.begin(), GPandCh[i]);
     }
 
-    for (int i = 0; i < vertices.size();i++)
+    for (int i = 0; i < g.edges.size();i++)
     {
-        cout << vertices[i].source << ", " << vertices[i].destination << ", " << vertices[i].weight << endl;
+        cout << g.edges[i].source->name << ", " << g.edges[i].destination->name << ", " << g.edges[i].weight << endl;
     }
 
         return 0;
