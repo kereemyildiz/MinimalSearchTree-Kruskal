@@ -15,11 +15,34 @@ class Node {
     Node(string name);
 };
 int Node::count = 0;
+
+vector<Node> nodes;
+
+int containsName(string name)
+{
+    for (int i = 0; i < nodes.size();i++ )
+    {
+        if (name == nodes[i].name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 Node::Node(string name)
 {
-    this->label = count;
-    count++;
     this->name = name;
+    int nameExist = containsName(name);
+    if (nameExist == -1)
+    {
+        this->label = count;
+        count++;
+    }
+    else
+    {
+        this->label = nodes[nameExist].label;
+    }
+    nodes.push_back(*this);
 }
 
 
@@ -107,8 +130,7 @@ int main()
 
         Node *_source = new Node(source);
         Node *_destination = new Node(destination);
-
-
+        
         Edge *edge = new Edge(_source, _destination, weight);
 
         if (checkGPandChurch(edge))
@@ -143,7 +165,7 @@ int main()
 
     for (int i = 0; i < g.edges.size();i++)
     {
-        cout << g.edges[i].source->name << ", " << g.edges[i].destination->name << ", " << g.edges[i].weight << endl;
+        cout << "Source Label: " << g.edges[i].source->label<<", " <<g.edges[i].source->name << ", " <<"Destination Label: " << g.edges[i].destination->label <<", " << g.edges[i].destination->name << ", " << g.edges[i].weight << endl;
     }
 
         return 0;
