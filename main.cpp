@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 class Node {
     public:
     int label;
@@ -18,31 +17,23 @@ int Node::count = 0;
 
 vector<Node> nodes;
 
-int containsName(string name)
+int containsName(vector<Node> nodes, string name)
 {
-    for (int i = 0; i < nodes.size();i++ )
+    int i = 0;
+    for (i; i < nodes.size();i++ )
     {
         if (name == nodes[i].name)
         {
             return i;
         }
     }
-    return -1;
+    return i;
 }
 Node::Node(string name)
 {
     this->name = name;
-    int nameExist = containsName(name);
-    if (nameExist == -1)
-    {
-        this->label = count;
-        count++;
-    }
-    else
-    {
-        this->label = nodes[nameExist].label;
-    }
-    nodes.push_back(*this);
+    this->label = count;
+    count++;
 }
 
 
@@ -69,11 +60,17 @@ Edge::Edge(Node* source, Node* destination, int weight)
     this->weight = weight;
 }
 
+void const printNodeVector(const vector<Node> &vect) 
+{
+    for (int i = 0; i < vect.size();i++)
+    {
+    }
+}
 
 class Graph{
     public:
     vector <Edge> edges;
-    vector<Edge> MST;
+    vector <Edge> MST;
 };
 
 
@@ -89,10 +86,12 @@ bool checkGPandChurch(Edge *edge)
     {
         return false;
     }
+
     return true;
 }
 bool checkGPandHipp(Edge* edge)
 {
+
     string GP = "GP";
     string Hipp = "Hipp";
 
@@ -101,15 +100,16 @@ bool checkGPandHipp(Edge* edge)
 
     if (found1 == std::string::npos || found2 == std::string::npos) // check whether location is GP and Hippodrome or not
     {
+
         return false;
     }
     return true;
 }
-int main()
+int main(int argc, char** argv)
 {
 
-
-    string fname = "city_plan_1.txt";
+    nodes.reserve(100);
+    string fname = argv[1];
     ifstream city_plan(fname);
 
     Graph g;
@@ -121,6 +121,11 @@ int main()
     string destination;
     string _weight;
     int weight;
+    Node *_source;
+    Node *temp_source;
+    Node *_destination;
+    Node *temp_destination;
+
     while (city_plan.good())
     {
         getline(city_plan, source, ',');
@@ -128,23 +133,60 @@ int main()
         getline(city_plan, _weight, '\n');
         weight = stod(_weight);
 
-        Node *_source = new Node(source);
-        Node *_destination = new Node(destination);
-        
-        Edge *edge = new Edge(_source, _destination, weight);
+        int index1 = containsName(nodes, source);
 
+        if (index1 == nodes.size())
+        {
+
+            temp_source = new Node(source);
+            nodes.push_back(*temp_source);
+            _source = &nodes[index1];
+            printNodeVector(nodes);
+
+        }
+        else
+        {
+            _source = &nodes[index1];
+
+        }
+        int index2 = containsName(nodes, destination);
+
+        if (index2 == nodes.size())
+        {
+        
+
+            temp_destination = new Node(destination);
+            nodes.push_back(*temp_destination);
+            printNodeVector(nodes);
+            _destination = &nodes[index2];
+
+        
+
+        }
+        else
+        {
+        
+            _destination = &nodes[index2];
+
+        }
+
+        Edge *edge = new Edge(_source, _destination, weight);
         if (checkGPandChurch(edge))
         {
+
             GPandCh.push_back(*edge);
         }
         else if (checkGPandHipp(edge))
         {
+
             GPandHipp.push_back(*edge);
         }
         else
         {
+
             g.edges.push_back(*edge);
         }
+
     }
     sort(g.edges.begin(), g.edges.end());
 
@@ -168,5 +210,5 @@ int main()
         cout << "Source Label: " << g.edges[i].source->label<<", " <<g.edges[i].source->name << ", " <<"Destination Label: " << g.edges[i].destination->label <<", " << g.edges[i].destination->name << ", " << g.edges[i].weight << endl;
     }
 
-        return 0;
+    return 0;
 }
