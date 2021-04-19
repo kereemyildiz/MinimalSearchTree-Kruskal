@@ -37,7 +37,6 @@ Node::Node(string name)
     count++;
 }
 
-
 class Edge {
     public:
     int weight;
@@ -80,8 +79,6 @@ class Graph{
         Graph() : weight_sum(0){}
 
 };
-
-
 
 bool checkValidity(Node* source,Node* destination)
 {
@@ -180,7 +177,6 @@ bool checkGPandHipp(Edge* edge)
     return true;
 }
 
-
 int main()
 {
     nodes.reserve(100);
@@ -241,17 +237,28 @@ int main()
 
         if (checkGPandChurch(edge))
         {
-            GPandCh.push_back(*edge);
+            if (GPandCh.size() == 0)
+                GPandCh.push_back(*edge);
+            else
+            {
+                if(GPandCh[0].weight < edge->weight){
+                    g.edges.push_back(*edge);
+                }
+                else{
+                    g.edges.push_back(GPandCh[0]);
+                    GPandCh.erase(GPandCh.begin());
+                    GPandCh.push_back(*edge);
+                }
+                
+            }
         }
 
         else if (checkGPandHipp(edge))
         {
             GPandHipp.push_back(*edge);
         }
-
         else
         {
-
             g.edges.push_back(*edge);
         }
 
@@ -272,11 +279,6 @@ int main()
         sort(GPandCh.begin(), GPandCh.end());
         g.edges.insert(g.edges.begin(), GPandCh[i]);
     }
-
-    // for (int i = 0; i < g.edges.size();i++)
-    // {
-    //     cout << "Source Label: " << g.edges[i].source->label<<", " <<g.edges[i].source->name << ", " <<"Destination Label: " << g.edges[i].destination->label <<", " << g.edges[i].destination->name << ", " << g.edges[i].weight << endl;
-    // }
     g.runKruskal();
     g.printMST();
 
