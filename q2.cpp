@@ -17,6 +17,7 @@ class Node {
 
 int Node::count = 0;
 vector<Node> nodes;
+vector<int> forbidden;
 
 int containsName(vector<Node> nodes, string name)
 {
@@ -37,6 +38,16 @@ Node::Node(string name)
     this->label = count;
     count++;
 }
+
+bool checkEnemyZone(string name)
+{
+    string enemy = "E";
+    size_t found = name.find(enemy);
+
+    if (found != std::string::npos)
+        return false;
+    return true;
+}
 int minDistance(vector<int> dist, 
                 vector<bool> sptSet)
 {
@@ -45,8 +56,7 @@ int minDistance(vector<int> dist,
     int min = INT_MAX, min_index;
 
     for (unsigned int v = 0; v < nodes.size(); v++)
-        if (sptSet[v] == false &&
-            dist[v] <= min)
+        if (sptSet[v] == false && dist[v] <= min)
             min = dist[v], min_index = v;
 
     return min_index;
@@ -74,28 +84,14 @@ void printSolution(vector<int> dist, int start_label,int end_label, vector<int>p
         cout << dist[end_label] << endl;
 }
 
-// Funtion that implements Dijkstra's
-// single source shortest path
-// algorithm for a graph represented
-// using adjacency matrix representation
 void dijkstra(int **graph, int src, int end)
 {
-    // The output array. dist[i]
-    // will hold the shortest
-    // distance from src to i
+
     int size = nodes.size();
 
     vector<int> dist(size);
     vector<bool> sptSet(size);
     vector<int> parent(size);
-
-    // sptSet[i] will true if vertex
-    // i is included / in shortest
-    // path tree or shortest distance 
-    // from src to i is finalized
-
-    // Parent array to store
-    // shortest path tree
 
     // Initialize all distances as 
     // INFINITE and stpSet[] as false
@@ -149,7 +145,31 @@ void dijkstra(int **graph, int src, int end)
     // distance array
     printSolution(dist, src,end, parent);
 }
+void printNodes(vector<Node> &nodes) 
+{
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        cout << nodes[i].name <<" "<<nodes[i].label<< endl;
+    }
+    
+}
+void detectForbiddenZone(int i, int max, int **graph)
+{
+    for (int j = 0; j < nodes.size(); j++)
+    {
+        if (graph[i][j] < max && graph[i][j] != 0)
+        {
+            int temp = graph[i][j];
+            graph[i][j] = 0;
+            graph[j][i] = 0;
+            detectForbiddenZone(j, max - temp, graph);
 
+        }
+
+    }
+    forbidden.push_back(i);
+
+}
 int main()
 {
 
@@ -165,8 +185,7 @@ int main()
             a[i][j] = 0;
         }
     }
-    string fname;
-    cin >> fname;
+    string fname = "path_info_2.txt";
     ifstream city_plan(fname);
 
     string source;
@@ -220,17 +239,15 @@ int main()
             start_label = index1;
         if (destination == "Mo")
             end_label = index2;
-        // cout << "2" << endl;
-        // cout << _source->label << ", " << _destination->label << ", " << weight << endl;
+
+
         a[_source->label][_destination->label] = weight;
+        a[_destination->label][_source->label] = weight;
+
     }
 
-    // for (int k = 0; k < nodes.size();k++)
-    // {
-    //     cout << nodes[k].label << ", " << nodes[k].name << endl;
-    // }
+
     int size = nodes.size();
-    // cout << "size : "<<size << endl;
     int **graph = new int*[size];
 
     for(int k = 0; k < size; ++k){
@@ -238,9 +255,7 @@ int main()
         for (int m = 0; m < size; ++m)
         {
             graph[k][m] = a[k][m];
-            // printf("%3d",graph[k][m]);
         }
-        //cout << endl;
     }
 
      //Free the memory by deleting nodes vector and temporarily created dynamic 2d array. 
@@ -250,8 +265,66 @@ int main()
     }
     //Free the array of pointers
     delete[] a;
-    dijkstra(graph, start_label,end_label);
+    vector <int> enemy;
+    printNodes(nodes);
+    cout << "MATRIS:" << endl;
+    for(int k = 0; k < size; ++k){
+        for (int m = 0; m < size; ++m)
+        {
+            printf("%3d",graph[k][m]);
+        }
+        cout << endl;
+    }
+    for (int k = 0; k < nodes.size(); ++k)
+    {
+        if (!checkEnemyZone(nodes[k].name))
+        {
+            enemy.push_back(nodes[k].label);
+        }
+    }
+    cout << " ENEMY:" << endl;
+    for (int k = 0; k < enemy.size(); ++k)
+    {
+        cout << enemy[k]<< " ";
+    }
+    cout << endl;
+    cout << "enemy size: " << enemy.size() << endl;
+    cout << "Node size : "<< nodes.size() << endl;
 
+    int enemy_size = enemy.size();
+    cout << "************" << endl;
+
+    for (int i = 0; i < enemy_size; ++i)
+    {
+        detectForbiddenZone(enemy[i],3,graph);
+    }
+    int forbidden_size1 = forbidden.size();
+    cout << "forbidden size:" << forbidden_size1 << endl;
+    for (int i = 0; i < forbidden_size1; ++i)
+    {
+        cout << "forbiddens : " << forbidden[i] << " " << endl;
+    }
+
+    cout << "************" << endl;
+
+
+    for (int k = 0; k < forbidden.size();k++){
+        for (int j = 0; j < 9; j++)
+        {
+        graph[forbidden[k]][j] = 0;
+        graph[j][forbidden[k]] = 0;
+        }
+    }
+
+    for(int k = 0; k < size; ++k){
+        for (int m = 0; m < size; ++m)
+        {
+            printf("%3d",graph[k][m]);
+        }
+        cout << endl;
+    }
+
+    dijkstra(graph, start_label,end_label);
 
     return 0;
 }
