@@ -1,3 +1,9 @@
+/*
+Author: Ali Kerem Yıldız
+ID    : 150170013
+*/
+
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -35,9 +41,18 @@ Node::Node(string name)
     this->label = count;
     count++;
 }
+
+class Graph{
+    public:
+    vector<Node> nodes;
+    vector<int> forbidden;
+    int nearestDistance(vector<int> distance, vector<bool> isTraversed);
+    void ShortestPath(int **graph, int start, int end);
+    void printRecursive(vector<int> parent, int j);
+    void printPath(vector<int> distance, int start_label, int end_label, vector<int> parent);
+    void detectForbiddenZone(int i, int max, int **graph, unsigned int start_label);
+};
 int Node::count = 0;
-vector<Node> nodes;
-vector<int> forbidden;
 
 bool checkEnemyZone(string name)
 {
@@ -48,7 +63,7 @@ bool checkEnemyZone(string name)
         return false;
     return true;
 }
-int nearestDistance(vector<int> distance, vector<bool> isTraversed)
+int Graph::nearestDistance(vector<int> distance, vector<bool> isTraversed)
 {
     // Initialize min value
     int min = INT_MAX; // highest value at the beginning
@@ -63,10 +78,8 @@ int nearestDistance(vector<int> distance, vector<bool> isTraversed)
     return index;
 }
 
-// Function to print shortest
-// path from source to j
-// using parent array
-void printRecursive(vector <int> parent, int j)
+// print shortest path from source to j using parent array
+void Graph::printRecursive(vector <int> parent, int j)
 {
 
     // Base Case : If j is source
@@ -77,7 +90,7 @@ void printRecursive(vector <int> parent, int j)
 
     cout << nodes[j].name << " ";
 }
-void printPath(vector<int> distance, int start_label,int end_label, vector<int>parent)
+void Graph::printPath(vector<int> distance, int start_label,int end_label, vector<int>parent)
 {
         int x = end_label;
         cout << nodes[start_label].name << " ";
@@ -85,7 +98,7 @@ void printPath(vector<int> distance, int start_label,int end_label, vector<int>p
         cout << distance[end_label] << endl;
 }
 
-void ShortestPath(int **graph, int start, int end)
+void Graph::ShortestPath(int **graph, int start, int end)
 {
 
     int size = nodes.size();
@@ -132,15 +145,8 @@ void ShortestPath(int **graph, int start, int end)
     // distance array
     printPath(distance, start ,end, parent);
 }
-void printNodes(vector<Node> &nodes) 
-{
-    for (unsigned int i = 0; i < nodes.size(); i++)
-    {
-        cout << nodes[i].name <<" "<<nodes[i].label<< endl;
-    }
-    
-}
-void detectForbiddenZone(int i, int max, int **graph,unsigned int start_label)
+
+void Graph::detectForbiddenZone(int i, int max, int **graph,unsigned int start_label)
 {
     for (unsigned int j = 0; j < nodes.size(); j++)
     {
@@ -165,6 +171,7 @@ int main()
     int colCount = 1000;
     int** temp_array = new int*[rowCount];
 
+    Graph g;
     for(int i = 0; i < rowCount; ++i){ // All elements filled with 0
         temp_array[i] = new int[colCount];
         for (int j = 0; j < colCount; ++j)
@@ -173,11 +180,12 @@ int main()
         }
     }
 
-
-    nodes.reserve(1000); // since we are not know the node size, initially, we reserve some memory
+    
+    g.nodes.reserve(1000); // since we are not know the node size, initially, we reserve some memory
                         // After file read operation done, we are going to free the memory.
                         //it can help the vector avoid repeatedly allocating memory (and having to move the data to the new memory).
-    string fname = "path_info_1.txt";
+    string fname;
+    cin >> fname;
     ifstream city_plan(fname);
 
     string source;
@@ -198,29 +206,29 @@ int main()
         getline(city_plan, _weight, '\n');
         weight = stod(_weight);
 
-        unsigned int index1 = containsName(nodes, source); // if node is already added to nodes vector. We use this function in order to evaluate a set. (Unique nodes)
-        if (index1 == nodes.size()) // If it return its size, this means it cannot find a node with the given name. 
+        unsigned int index1 = containsName(g.nodes, source); // if node is already added to nodes vector. We use this function in order to evaluate a set. (Unique nodes)
+        if (index1 == g.nodes.size()) // If it return its size, this means it cannot find a node with the given name. 
         {                           // Therefore it is going to add.
             temp_source = new Node(source);
-            nodes.push_back(*temp_source);
-            _source = &nodes[index1];
+            g.nodes.push_back(*temp_source);
+            _source = &g.nodes[index1];
         }
         else
         {
-            _source = &nodes[index1]; // If it is already added in nodes vector, we take its address and do some operation on it.
+            _source = &g.nodes[index1]; // If it is already added in nodes vector, we take its address and do some operation on it.
         }
 
-        unsigned int index2 = containsName(nodes, destination);
-        if (index2 == nodes.size())
+        unsigned int index2 = containsName(g.nodes, destination);
+        if (index2 == g.nodes.size())
         {
             temp_destination = new Node(destination);
-            nodes.push_back(*temp_destination);
-            _destination = &nodes[index2];
+            g.nodes.push_back(*temp_destination);
+            _destination = &g.nodes[index2];
 
         }
         else
         {
-            _destination = &nodes[index2];
+            _destination = &g.nodes[index2];
         }
 
         if (source == "Ma") // evaluating start and end label
@@ -232,7 +240,7 @@ int main()
         temp_array[_destination->label][_source->label] = weight;
     }
 
-    int size = nodes.size(); // we evaluate the size of nodes.
+    int size = g.nodes.size(); // we evaluate the size of nodes.
     int **graph = new int*[size]; // grpah initialized
 
     for(int k = 0; k < size; ++k){
@@ -254,12 +262,12 @@ int main()
 
     vector <int> enemy; // we will store the enemy spot's labels in there.
 
-    for (unsigned int k = 0; k < nodes.size(); ++k) // nodes vector contains every place and place's information( name, label)
+    for (unsigned int k = 0; k < g.nodes.size(); ++k) // nodes vector contains every place and place's information( name, label)
                                                     // label is assigned to all places when creating phase. All of them have unique integer label value.
     {
-        if (!checkEnemyZone(nodes[k].name)) // if place is enemy spot which means is it containing 'E' or not.
+        if (!checkEnemyZone(g.nodes[k].name)) // if place is enemy spot which means is it containing 'E' or not.
         {
-            enemy.push_back(nodes[k].label); // if it is enemy spot, then add it to the enemy vector.
+            enemy.push_back(g.nodes[k].label); // if it is enemy spot, then add it to the enemy vector.
         }
     }
 
@@ -267,20 +275,20 @@ int main()
     // Now, we will going to find spots which has a distance smaller than 5 with enemy spots. 
     for (unsigned int i = 0; i < enemy.size(); ++i)
     {
-        detectForbiddenZone(enemy[i],MAX_DISTANCE,graph,start_label); // we call this function for each enemy spot.
+        g.detectForbiddenZone(enemy[i],MAX_DISTANCE,graph,start_label); // we call this function for each enemy spot.
                                                                     // This function going to change the graph.
                                                                     // It will fill with zeros all row and column of forbidden spots.
     }
 
-    for (unsigned int k = 0; k < forbidden.size();k++){ // Fill with zero of forbidden spots (enemy spots and close spots to the enemy spots)
+    for (unsigned int k = 0; k < g.forbidden.size();k++){ // Fill with zero of forbidden spots (enemy spots and close spots to the enemy spots)
         for (int j = 0; j < size; j++)
         {
-        graph[forbidden[k]][j] = 0;
-        graph[j][forbidden[k]] = 0;
+        graph[g.forbidden[k]][j] = 0;
+        graph[j][g.forbidden[k]] = 0;
         }
     }
 
     // Graph is evaluated properly
-    ShortestPath(graph, start_label,end_label);
+    g.ShortestPath(graph, start_label,end_label);
     return 0;
 }
