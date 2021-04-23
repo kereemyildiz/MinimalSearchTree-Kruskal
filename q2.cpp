@@ -4,6 +4,7 @@
 #include <string>
 #include <limits.h>
 
+# define MAX_DISTANCE 5
 
 using namespace std;
 
@@ -147,17 +148,17 @@ void dijkstra(int **graph, int src, int end)
 }
 void printNodes(vector<Node> &nodes) 
 {
-    for (int i = 0; i < nodes.size(); i++)
+    for (unsigned int i = 0; i < nodes.size(); i++)
     {
         cout << nodes[i].name <<" "<<nodes[i].label<< endl;
     }
     
 }
-void detectForbiddenZone(int i, int max, int **graph)
+void detectForbiddenZone(int i, int max, int **graph,int start_label)
 {
-    for (int j = 0; j < nodes.size(); j++)
+    for (unsigned int j = 0; j < nodes.size(); j++)
     {
-        if (graph[i][j] < max && graph[i][j] != 0)
+        if (graph[i][j] < max && graph[i][j] != 0 && j != start_label )
         {
             forbidden.push_back(j);
         }
@@ -260,46 +261,45 @@ int main()
     //Free the array of pointers
     delete[] a;
     vector <int> enemy;
-    printNodes(nodes);
-    cout << "MATRIS:" << endl;
-    for(int k = 0; k < size; ++k){
-        for (int m = 0; m < size; ++m)
-        {
-            printf("%3d",graph[k][m]);
-        }
-        cout << endl;
-    }
-    for (int k = 0; k < nodes.size(); ++k)
+    // printNodes(nodes);
+    // cout << "MATRIS:" << endl;
+    // for(int k = 0; k < size; ++k){
+    //     for (int m = 0; m < size; ++m)
+    //     {
+    //         printf("%3d",graph[k][m]);
+    //     }
+    //     cout << endl;
+    // }
+    for (unsigned int k = 0; k < nodes.size(); ++k)
     {
         if (!checkEnemyZone(nodes[k].name))
         {
             enemy.push_back(nodes[k].label);
         }
     }
-    cout << " ENEMY:" << endl;
-    for (int k = 0; k < enemy.size(); ++k)
-    {
-        cout << enemy[k]<< " ";
-    }
-    cout << endl;
-    cout << "enemy size: " << enemy.size() << endl;
-    cout << "Node size : "<< nodes.size() << endl;
+    // cout << " ENEMY:" << endl;
+    // for (int k = 0; k < enemy.size(); ++k)
+    // {
+    //     cout << enemy[k]<< " ";
+    // }
+    // cout << endl;
+    // cout << "enemy size: " << enemy.size() << endl;
+    // cout << "Node size : "<< nodes.size() << endl;
 
     int enemy_size = enemy.size();
-    cout << "************" << endl;
 
     for (int i = 0; i < enemy_size; ++i)
     {
-        detectForbiddenZone(enemy[i],4,graph);
+        detectForbiddenZone(enemy[i],MAX_DISTANCE,graph,start_label);
     }
     int forbidden_size1 = forbidden.size();
-    cout << "forbidden size:" << forbidden_size1 << endl;
-    for (int i = 0; i < forbidden_size1; ++i)
-    {
-        cout << "forbiddens : " << forbidden[i] << " " << endl;
-    }
+    // cout << "forbidden size:" << forbidden_size1 << endl;
+    // for (int i = 0; i < forbidden_size1; ++i)
+    // {
+    //     cout << "forbiddens : " << forbidden[i] << " " << endl;
+    // }
 
-    cout << "************" << endl;
+    // cout << "************" << endl;
 
 
     for (int k = 0; k < forbidden.size();k++){
@@ -310,13 +310,13 @@ int main()
         }
     }
 
-    for(int k = 0; k < size; ++k){
-        for (int m = 0; m < size; ++m)
-        {
-            printf("%3d",graph[k][m]);
-        }
-        cout << endl;
-    }
+    // for(int k = 0; k < size; ++k){
+    //     for (int m = 0; m < size; ++m)
+    //     {
+    //         printf("%3d",graph[k][m]);
+    //     }
+    //     cout << endl;
+    // }
     dijkstra(graph, start_label,end_label);
     return 0;
 }
