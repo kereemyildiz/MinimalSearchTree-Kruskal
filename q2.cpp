@@ -16,8 +16,6 @@ class Node {
         Node(string name);
 };
 
-
-
 int containsName(vector<Node> nodes, string name)
 {
     unsigned int i = 0;
@@ -116,13 +114,10 @@ void ShortestPath(int **graph, int start, int end)
     // We will check every node, then decide which is the nearest to choose.
     for (int count = 0; count < size - 1; count++)
     {
-
         int source = nearestDistance(distance, isTraversed); // Chosen distance must be not traversed (otherwise, cycle exist)
                                                             // and we must choose nearest neighbour or starting point at the beginning
 
-
         isTraversed[source] = true; // We mark as true the node which we are traversing from.
-
 
         // Now, we need to traverse all places and find the ones which satisfies requirements (has a connection with source, not traversed etc.)
         for (int i = 0; i < size; i++)
@@ -133,7 +128,6 @@ void ShortestPath(int **graph, int start, int end)
                 distance[i] = distance[source] + graph[source][i]; // update the distance vector, we find shortest path.
             } 
     }
-
     // print the constructed
     // distance array
     printPath(distance, start ,end, parent);
@@ -259,15 +253,7 @@ int main()
 
 
     vector <int> enemy; // we will store the enemy spot's labels in there.
-    // printNodes(nodes);
-    // cout << "MATRIS:" << endl;
-    // for(int k = 0; k < size; ++k){
-    //     for (int m = 0; m < size; ++m)
-    //     {
-    //         printf("%3d",graph[k][m]);
-    //     }
-    //     cout << endl;
-    // }
+
     for (unsigned int k = 0; k < nodes.size(); ++k) // nodes vector contains every place and place's information( name, label)
                                                     // label is assigned to all places when creating phase. All of them have unique integer label value.
     {
@@ -276,14 +262,6 @@ int main()
             enemy.push_back(nodes[k].label); // if it is enemy spot, then add it to the enemy vector.
         }
     }
-    // cout << " ENEMY:" << endl;
-    // for (int k = 0; k < enemy.size(); ++k)
-    // {
-    //     cout << enemy[k]<< " ";
-    // }
-    // cout << endl;
-    // cout << "enemy size: " << enemy.size() << endl;
-    // cout << "Node size : "<< nodes.size() << endl;
 
     // We found the enemy spots.
     // Now, we will going to find spots which has a distance smaller than 5 with enemy spots. 
@@ -293,14 +271,6 @@ int main()
                                                                     // This function going to change the graph.
                                                                     // It will fill with zeros all row and column of forbidden spots.
     }
-    // cout << "forbidden size:" << forbidden_size1 << endl;
-    // for (int i = 0; i < forbidden_size1; ++i)
-    // {
-    //     cout << "forbiddens : " << forbidden[i] << " " << endl;
-    // }
-
-    // cout << "************" << endl;
-
 
     for (unsigned int k = 0; k < forbidden.size();k++){ // Fill with zero of forbidden spots (enemy spots and close spots to the enemy spots)
         for (int j = 0; j < size; j++)
@@ -310,13 +280,6 @@ int main()
         }
     }
 
-    // for(int k = 0; k < size; ++k){
-    //     for (int m = 0; m < size; ++m)
-    //     {
-    //         printf("%3d",graph[k][m]);
-    //     }
-    //     cout << endl;
-    // }
     // Graph is evaluated properly
     ShortestPath(graph, start_label,end_label);
     return 0;
