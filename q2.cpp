@@ -159,16 +159,10 @@ void detectForbiddenZone(int i, int max, int **graph)
     {
         if (graph[i][j] < max && graph[i][j] != 0)
         {
-            int temp = graph[i][j];
-            graph[i][j] = 0;
-            graph[j][i] = 0;
-            detectForbiddenZone(j, max - temp, graph);
-
+            forbidden.push_back(j);
         }
-
     }
     forbidden.push_back(i);
-
 }
 int main()
 {
@@ -296,7 +290,7 @@ int main()
 
     for (int i = 0; i < enemy_size; ++i)
     {
-        detectForbiddenZone(enemy[i],3,graph);
+        detectForbiddenZone(enemy[i],4,graph);
     }
     int forbidden_size1 = forbidden.size();
     cout << "forbidden size:" << forbidden_size1 << endl;
@@ -323,8 +317,6 @@ int main()
         }
         cout << endl;
     }
-
     dijkstra(graph, start_label,end_label);
-
     return 0;
 }
